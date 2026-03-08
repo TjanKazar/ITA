@@ -1,64 +1,80 @@
-# 🏀 HOOPS
+# HOOPS
 
-Aplikacija za beleženje lokalnih **pick-up košarkaških iger**.
+Aplikacija za beleženje lokalnih iger košarke.
 
-HOOPS omogoča igralcem na lokalnih igriščih ustvarjanje tekem, beleženje rezultatov ter spremljanje **rankinga in leaderboardov**.
+## Opis
 
----
+HOOPS omogoča uporabnikom beleženje lokalnih pick-up košarkaških iger.  
+Uporabniki so večinsko lokalni igralci, ki igrajo na določenem igrišču, bodisi v telovadnici ali na zunanjem igrišču.
 
-# 📌 Opis projekta
+## Osnovne funkcionalnosti sistema
 
-HOOPS je namenjen predvsem **lokalnim igralcem pick-up košarke** na:
+- ustvarjanje courtov (igrišč)
+- ustvarjanje iger na teh igriščih
+- beleženje rezultatov
+- vpogled v leaderboard
+- pridobivanje ranka (bronze, silver, gold, diamond ...)
 
-- zunanjih igriščih
-- telovadnicah
-- rekreativnih ligah
+## Komunikacija med komponentami
 
-Aplikacija omogoča organizacijo iger, beleženje rezultatov ter spremljanje napredka igralcev skozi **ranking sistem**.
+Sistem je sestavljen iz 5 glavnih komponent.
 
----
+### 1. Court service
 
-# ⚙️ Osnovne funkcionalnosti
+Hrani informacije o igriščih:
 
-- ustvarjanje **courtov (igrišč)**
-- ustvarjanje **iger na teh igriščih**
-- beleženje **rezultatov tekem**
-- **leaderboard** za mesta in posamezna igrišča
-- **ranking sistem** (Bronze → Silver → Gold → Diamond)
-
----
-
-# 🏗️ Arhitektura sistema
-
-Sistem je sestavljen iz **5 glavnih komponent (microservices)**.
-
----
-
-## 1️⃣ Court Service
-
-Skrbi za informacije o igriščih.
-
-### Funkcionalnosti
-
-- lokacija igrišča
-- status igrišča:
-  - `empty`
-  - `waiting for players`
-  - `packed`
+- lokacija
+- status igrišča (empty, waiting for players, packed)
 - število košev na igrišču
-- tip igrišča:
-  - `telovadnica`
-  - `zunanje igrišče`
+- tip igrišča (telovadnica, zunanje igrišče)
 
-### Omogoča
+Omogoča tudi vpogled v aktivna igrišča.
 
-- vpogled v **aktivna igrišča**
-- pregled igrišč v bližini
+### 2. Session service
 
----
+Upravlja igro znotraj aplikacije, od **"Match found"** do **"finished"**.
 
-## 2️⃣ Session Service
+Ob začetku igre se udeležencem spremenljivka `In_game` nastavi na `True`.
 
-Upravlja potek igre znotraj aplikacije.
+Omogoča večinsko udeležbo prijavljenih uporabnikov, da preprečimo neizvedljive igre (npr. igralec nima aplikacije).
 
-### Lifecycle igre
+Primer:
+
+- pri 10 igralcih mora biti vsaj 7 prijavljenih v aplikaciji
+- ostali 3 se lahko vnesejo ročno
+
+### 3. Ranking service
+
+Uporabniku se izračuna pridobljen oziroma izgubljen rating glede na več faktorjev:
+
+- primerjava igralčevega ratinga s povprečnim ratingom igre
+- zaupanje v prijavljen rezultat  
+  (pri višjih rankih lahko zahtevamo "priče", ki potrdijo rezultat igre 1v1)
+- handicap (npr. igra 5 proti 4)
+
+Service pripravlja tudi leaderboarde:
+
+- leaderboard za neko mesto
+- lokalne leaderboarde za posamezni court
+
+### 4. User service
+
+Upravlja uporabnike, avtentikacijo in zgodovino igralca.
+
+Primer podatkov:
+
+- Id
+- Uporabniško ime
+- email
+- Rank
+- In_game
+- št. odigranih iger
+- št. zmag
+- št. porazov
+- reputation (honor system)
+- home court
+- favourite courts []
+
+## Reputation
+
+Uporabnik ima boljši reputation, če ga več različnih igralcev označi kot poštenega.
