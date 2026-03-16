@@ -2,12 +2,15 @@ name: Run Tests
 
 on:
   push:
-    branches:
-      - '**'
+  pull_request:
 
 jobs:
   test:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Hoops/hoops-auth
 
     steps:
       - name: Checkout code
