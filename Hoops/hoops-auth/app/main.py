@@ -31,7 +31,7 @@ app.include_router(users.router)
 def health():
     return {"status": "ok", "service": "hoops-auth"}
 
-
+#komentar
 @app.exception_handler(Exception)
 async def unhandled_exception(request: Request, exc: Exception):
     log.error("Unhandled exception on %s: %s", request.url, exc)
