@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  hoops-auth:
+    build: .
+    container_name: hoops-auth
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-change-me}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - DATABASE_URL=sqlite:///./hoops_auth.db
+    volumes:
+      # Persist the SQLite file outside the container
+      - auth-db:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  auth-db:
