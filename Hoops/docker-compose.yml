@@ -1,9 +1,9 @@
 services:
-  hoops-auth:
+  user-service:
     build:
-      context: ./hoops-auth
+      context: ./user-service
       dockerfile: app/Dockerfile
-    container_name: hoops-auth
+    container_name: user-service
     ports:
       - "8000:8000"
     environment:
