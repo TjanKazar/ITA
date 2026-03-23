@@ -29,7 +29,7 @@ app.include_router(users.router)
 
 @app.get("/health", tags=["meta"])
 def health():
-    return {"status": "ok", "service": "hoops-auth"}
+    return {"status": "ok", "service": "user-service"}
 
 #komentar
 @app.exception_handler(Exception)
