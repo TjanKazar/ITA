@@ -29,11 +29,20 @@ app.include_router(users.router)
 
 @app.get("/health", tags=["meta"])
 def health():
+<<<<<<< HEAD
     return {"status": "ok", "service": "user-service"}
 
 #komentar
+=======
+    return {"status": "ok", "service": "hoops-auth"}
+
+
+>>>>>>> 4031a5b (chore: clean up gitignore - remove bloat)
 @app.exception_handler(Exception)
 async def unhandled_exception(request: Request, exc: Exception):
     log.error("Unhandled exception on %s: %s", request.url, exc)
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+<<<<<<< HEAD
  
+=======
+>>>>>>> 4031a5b (chore: clean up gitignore - remove bloat)

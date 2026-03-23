@@ -1,9 +1,11 @@
 services:
+
   user-service:
     build:
       context: ./user-service
       dockerfile: app/Dockerfile
     container_name: user-service
+
     ports:
       - "8000:8000"
     environment:
