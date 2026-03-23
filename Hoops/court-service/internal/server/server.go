@@ -12,20 +12,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type CourtServer struct {
-	pb.UnimplementedCourtServiceServer
-	store *models.CourtStore
+// Store interface — lets us swap real DB for a mock in tests
+type Store interface {
+	Create(c *models.Court) (*models.Court, error)
+	GetByID(id int32) (*models.Court, error)
+	List(city string, activeOnly bool) ([]*models.Court, error)
+	UpdateStatus(id int32, status int32) (*models.Court, error)
+	Delete(id int32) error
 }
 
-func NewCourtServer(db interface {
-	QueryRow(string, ...any) *sql.Row
-	Query(string, ...any) (*sql.Rows, error)
-	Exec(string, ...any) (sql.Result, error)
-}) *CourtServer {
-	return &CourtServer{store: models.NewCourtStore(db.(*sql.DB))}
+type CourtServer struct {
+	pb.UnimplementedCourtServiceServer
+	store Store
 }
 
 func New(store *models.CourtStore) *CourtServer {
+	return &CourtServer{store: store}
+}
+
+func NewWithStore(store Store) *CourtServer {
 	return &CourtServer{store: store}
 }
 
@@ -55,7 +60,7 @@ func (s *CourtServer) CreateCourt(_ context.Context, req *pb.CreateCourtRequest)
 func (s *CourtServer) GetCourt(_ context.Context, req *pb.GetCourtRequest) (*pb.Court, error) {
 	c, err := s.store.GetByID(req.Id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) || err.Error() == "sql: no rows in result set" {
 			return nil, status.Errorf(codes.NotFound, "court %d not found", req.Id)
 		}
 		return nil, status.Errorf(codes.Internal, "get court: %v", err)
@@ -79,7 +84,7 @@ func (s *CourtServer) ListCourts(_ context.Context, req *pb.ListCourtsRequest) (
 func (s *CourtServer) UpdateCourtStatus(_ context.Context, req *pb.UpdateCourtStatusRequest) (*pb.Court, error) {
 	c, err := s.store.UpdateStatus(req.CourtId, int32(req.Status))
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) || err.Error() == "sql: no rows in result set" {
 			return nil, status.Errorf(codes.NotFound, "court %d not found", req.CourtId)
 		}
 		return nil, status.Errorf(codes.Internal, "update status: %v", err)
