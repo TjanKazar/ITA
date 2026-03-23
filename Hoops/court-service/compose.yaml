@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  court-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: courts
+    ports:
+      - "5433:5432"   # 5433 so it doesn't clash with user-service postgres
+    volumes:
+      - court_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  court-service:
+    build: .
+    ports:
+      - "50051:50051"
+    environment:
+      DB_HOST: court-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: courts
+      GRPC_PORT: 50051
+    depends_on:
+      court-db:
+        condition: service_healthy
+
+volumes:
+  court_pgdata:

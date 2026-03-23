@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package court;
+option go_package = "court-service/proto;proto";
+
+enum CourtType {
+  OUTDOOR = 0;
+  GYM = 1;
+}
+
+enum CourtStatus {
+  EMPTY = 0;
+  WAITING_FOR_PLAYERS = 1;
+  PACKED = 2;
+}
+
+message Court {
+  int32 id = 1;
+  string name = 2;
+  string city = 3;
+  string address = 4;
+  float latitude = 5;
+  float longitude = 6;
+  int32 hoop_count = 7;
+  CourtType court_type = 8;
+  CourtStatus status = 9;
+  string created_at = 10;
+}
+
+message CreateCourtRequest {
+  string name = 1;
+  string city = 2;
+  string address = 3;
+  float latitude = 4;
+  float longitude = 5;
+  int32 hoop_count = 6;
+  CourtType court_type = 7;
+}
+
+message GetCourtRequest { int32 id = 1; }
+
+message ListCourtsRequest {
+  string city = 1; // filter by city, empty = all
+  bool active_only = 2; // only WAITING or PACKED courts
+}
+
+message ListCourtsResponse { repeated Court courts = 1; }
+
+message UpdateCourtStatusRequest {
+  int32 court_id = 1;
+  CourtStatus status = 2;
+}
+
+message DeleteCourtRequest { int32 id = 1; }
+message DeleteCourtResponse { bool success = 1; }
+
+service CourtService {
+  rpc CreateCourt(CreateCourtRequest) returns (Court);
+  rpc GetCourt(GetCourtRequest) returns (Court);
+  rpc ListCourts(ListCourtsRequest) returns (ListCourtsResponse);
+  rpc UpdateCourtStatus(UpdateCourtStatusRequest) returns (Court);
+  rpc DeleteCourt(DeleteCourtRequest) returns (DeleteCourtResponse);
+}
