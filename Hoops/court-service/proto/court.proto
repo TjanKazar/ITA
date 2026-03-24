@@ -40,8 +40,8 @@ message CreateCourtRequest {
 message GetCourtRequest { int32 id = 1; }
 
 message ListCourtsRequest {
-  string city = 1; // filter by city, empty = all
-  bool active_only = 2; // only WAITING or PACKED courts
+  string city = 1; 
+  bool active_only = 2;
 }
 
 message ListCourtsResponse { repeated Court courts = 1; }

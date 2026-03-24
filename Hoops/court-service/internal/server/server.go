@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Store interface — lets us swap real DB for a mock in tests
 type Store interface {
 	Create(c *models.Court) (*models.Court, error)
 	GetByID(id int32) (*models.Court, error)

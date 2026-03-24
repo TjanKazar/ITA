@@ -6,9 +6,11 @@ on:
       - '**'
 
 jobs:
-  test:
-    runs-on: ubuntu-latest 
-
+  test-user-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: user-service
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,3 +25,20 @@ jobs:
 
       - name: Run tests
         run: pytest tests/ -v
+
+  test-court-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: court-service
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Run tests
+        run: go test ./internal/server/... -v
