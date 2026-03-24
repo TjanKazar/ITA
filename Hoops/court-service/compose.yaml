@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: courts
     ports:
-      - "5433:5432"   # 5433 so it doesn't clash with user-service postgres
+      - "5433:5432"  
     volumes:
       - court_pgdata:/var/lib/postgresql/data
     healthcheck:

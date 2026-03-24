@@ -11,8 +11,6 @@ import (
 	pb "court-service/proto"
 )
 
-// ---------- mock store ----------
-
 type mockStore struct {
 	courts []*models.Court
 	nextID int32
@@ -73,8 +71,6 @@ func (m *mockStore) Delete(id int32) error {
 	return nil
 }
 
-// ---------- helpers ----------
-
 func newServer(t *testing.T) (*server.CourtServer, *mockStore) {
 	t.Helper()
 	store := newMockStore()
@@ -97,8 +93,6 @@ func createCourt(t *testing.T, srv *server.CourtServer, name, city string) *pb.C
 	}
 	return court
 }
-
-// ---------- CreateCourt ----------
 
 func TestCreateCourt_Success(t *testing.T) {
 	srv, _ := newServer(t)
@@ -170,8 +164,6 @@ func TestCreateCourt_ZeroHoopCount(t *testing.T) {
 	}
 }
 
-// ---------- GetCourt ----------
-
 func TestGetCourt_Success(t *testing.T) {
 	srv, _ := newServer(t)
 	created := createCourt(t, srv, "Park Court", "Maribor")
@@ -198,8 +190,6 @@ func TestGetCourt_NotFound(t *testing.T) {
 		t.Fatal("expected not found error, got nil")
 	}
 }
-
-// ---------- ListCourts ----------
 
 func TestListCourts_All(t *testing.T) {
 	srv, _ := newServer(t)
