@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: hoops-auth
+        working-directory: Hoops/hoops-auth
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: court-service
+        working-directory: Hoops/court-service
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
