@@ -27,7 +27,7 @@ jobs:
         run: pytest app/test/ -v
 
   test-court-service:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
     defaults:
       run:
         working-directory: Hoops/court-service
