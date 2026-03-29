@@ -1,0 +1,128 @@
+services:
+  # ===================
+  # DATABASES
+  # ===================
+  court-db:
+    image: postgres:16-alpine
+    container_name: court-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: courts
+    ports:
+      - "5433:5432"
+    volumes:
+      - court_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  notification-db:
+    image: postgres:16-alpine
+    container_name: notification-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: notifications
+    ports:
+      - "5434:5432"
+    volumes:
+      - notification_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ===================
+  # MESSAGE BROKER
+  # ===================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: hoops-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Management UI: http://localhost:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===================
+  # SERVICES
+  # ===================
+  court-service:
+    build: ./court-service
+    container_name: court-service
+    ports:
+      - "50051:50051"
+    environment:
+      DB_HOST: court-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: courts
+      GRPC_PORT: 50051
+    depends_on:
+      court-db:
+        condition: service_healthy
+
+  hoops-auth:
+    build:
+      context: ./hoops-auth
+      dockerfile: app/Dockerfile
+    container_name: hoops-auth
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-change-me}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - DATABASE_URL=sqlite:///./hoops_auth.db
+    volumes:
+      - auth-db:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8003:8003"
+    environment:
+      - NODE_ENV=development
+      - PORT=8003
+      - DATABASE_URL=postgresql://postgres:postgres@notification-db:5432/notifications?schema=public
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - EXCHANGE_NAME=hoops.events
+      - QUEUE_NAME=notification.events
+      - JWT_SECRET=${SECRET_KEY:-dev-secret-change-me}
+    depends_on:
+      notification-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  court_pgdata:
+  auth-db:
+  notification_pgdata:
+  rabbitmq_data:

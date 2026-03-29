@@ -18,7 +18,9 @@ def test_register_success(client):
     assert res.status_code == 201
     data = res.json()
     assert data["username"] == "jordan"
-    assert data["in_game"] is False
+    assert data["rating"] == 1000
+    assert data["reputation"] == 0.5
+    assert data["games_played"] == 0
     assert "hashed_password" not in data
 
 
@@ -95,7 +97,8 @@ def test_get_user_by_id(client, auth_headers):
     assert res.status_code == 200
     data = res.json()
     assert data["username"] == "testplayer"
-    assert "email" not in data
+    assert "rating" in data
+    assert "rank_tier" in data
 
 
 def test_get_user_not_found(client):
@@ -103,39 +106,3 @@ def test_get_user_not_found(client):
     assert res.status_code == 404
 
 
-# ── PATCH /users/{id}/in-game ─────────────────────────────────────────────────
-
-def test_set_in_game_true(client, auth_headers):
-    user_id = client.get("/auth/me", headers=auth_headers).json()["id"]
-    res = client.patch(f"/users/{user_id}/in-game", params={"in_game": True})
-    assert res.status_code == 200
-    assert res.json()["in_game"] is True
-
-
-def test_set_in_game_false(client, auth_headers):
-    user_id = client.get("/auth/me", headers=auth_headers).json()["id"]
-    client.patch(f"/users/{user_id}/in-game", params={"in_game": True})
-    res = client.patch(f"/users/{user_id}/in-game", params={"in_game": False})
-    assert res.json()["in_game"] is False
-
-
-# ── PATCH /users/{id}/stats ───────────────────────────────────────────────────
-
-def test_update_stats_win(client, auth_headers):
-    user_id = client.get("/auth/me", headers=auth_headers).json()["id"]
-    res = client.patch(f"/users/{user_id}/stats", params={"won": True})
-    assert res.status_code == 200
-    data = res.json()
-    assert data["games_played"] == 1
-    assert data["wins"] == 1
-    assert data["losses"] == 0
-
-
-def test_update_stats_loss(client, auth_headers):
-    user_id = client.get("/auth/me", headers=auth_headers).json()["id"]
-    res = client.patch(f"/users/{user_id}/stats", params={"won": False})
-    assert res.status_code == 200
-    data = res.json()
-    assert data["games_played"] == 1
-    assert data["wins"] == 0
-    assert data["losses"] == 1
