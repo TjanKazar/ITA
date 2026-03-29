@@ -11,7 +11,8 @@ Uporabniki so večinsko lokalni igralci, ki igrajo na določenem igrišču, bodi
 
 - ustvarjanje courtov (igrišč)
 - ustvarjanje iger na teh igriščih
-- beleženje rezultatov
+- beleženje rezultatov (potencialno dosegljivo z computer vision, kjer od vsakega igralca telefonska kamera gleda en obroč
+      - beleženje rezultatov bi delovalo v vseh "game modih", beleženje osebne statistike na ta način samo v 1v1).
 - vpogled v leaderboard
 - pridobivanje ranka (bronze, silver, gold, diamond ...)
 
@@ -61,19 +62,22 @@ Service pripravlja tudi leaderboarde:
 
 Upravlja uporabnike, avtentikacijo in zgodovino igralca.
 
-Primer podatkov:
+USER mode: 
+a
+## User Model
 
-- Id
-- Uporabniško ime
-- email
-- Rank
-- In_game
-- št. odigranih iger
-- št. zmag
-- št. porazov
-- reputation (honor system)
-- home court
-- favourite courts []
+| Column            | Type           | Constraints                      | Default                |
+|-------------------|----------------|----------------------------------|------------------------|
+| `id`              | `Integer`      | Primary Key, Indexed             | Auto-generated         |
+| `username`        | `String(50)`   | Unique, Indexed, Not Null        | —                      |
+| `email`           | `String(255)`  | Unique, Indexed, Not Null        | —                      |
+| `hashed_password` | `String(255)`  | Not Null                         | —                      |
+| `in_game`         | `Boolean`      | —                                | `False`                |
+| `games_played`    | `Integer`      | —                                | `0`                    |
+| `wins`            | `Integer`      | —                                | `0`                    |
+| `losses`          | `Integer`      | —                                | `0`                    |
+| `is_active`       | `Boolean`      | —                                | `True`                 |
+| `created_at`      | `DateTime(tz)` | —                                | Current UTC timestamp  |
 
 ## Reputation
 
