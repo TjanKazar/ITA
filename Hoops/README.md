@@ -20,16 +20,39 @@ Uporabniki so večinsko lokalni igralci, ki igrajo na določenem igrišču, bodi
 
 Sistem je sestavljen iz 5 glavnih komponent.
 
-### 1. Court service
+### 1. Court service (implemented)
 
-Hrani informacije o igriščih:
+## Court Model
 
-- lokacija
-- status igrišča (empty, waiting for players, packed)
-- število košev na igrišču
-- tip igrišča (telovadnica, zunanje igrišče)
+| Column      | Type        | Constraints        | Default               |
+|-------------|-------------|--------------------|-----------------------|
+| `id`        | `int32`     | Primary Key        | Auto-generated        |
+| `name`      | `string`    | —                  | —                     |
+| `city`      | `string`    | —                  | —                     |
+| `address`   | `string`    | —                  | —                     |
+| `latitude`  | `float32`   | —                  | —                     |
+| `longitude` | `float32`   | —                  | —                     |
+| `hoop_count`| `int32`     | —                  | —                     |
+| `court_type`| `int32`     | —                  | —                     |
+| `status`    | `int32`     | —                  | `0`                   |
+| `created_at`| `timestamp` | —                  | Current timestamp     |
 
-Omogoča tudi vpogled v aktivna igrišča.
+
+### Court Type Values
+
+| Value | Description |
+|-------|-------------|
+| `0`   | Outdoor     |
+| `1`   | Indoor      |
+| `2`   | Mixed       |
+
+### Status Values
+
+| Value | Description |
+|-------|-------------|
+| `0`   | Pending     |
+| `1`   | Active      |
+| `2`   | Closed      |
 
 ### 2. Session service
 
@@ -58,7 +81,7 @@ Service pripravlja tudi leaderboarde:
 - leaderboard za neko mesto
 - lokalne leaderboarde za posamezni court
 
-### 4. User service
+### 4. User service (implemented)
 
 Upravlja uporabnike, avtentikacijo in zgodovino igralca.
 
