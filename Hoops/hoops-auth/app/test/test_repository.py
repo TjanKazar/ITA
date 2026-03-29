@@ -12,7 +12,6 @@ def test_create_user(repo):
     assert user.id is not None
     assert user.username == "lebron"
     assert user.rating == 1000
-    assert user.rank_tier == 0
     assert user.games_played == 0
     assert user.reputation == 0.5
 

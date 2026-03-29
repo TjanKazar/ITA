@@ -64,6 +64,15 @@ class UserRepository:
             .all()
         )
 
+    def get_leaderboard_count(self) -> int:
+        """Get total count of eligible players on leaderboard."""
+        return (
+            self.db.query(User)
+            .filter(User.is_active == True)
+            .filter(User.games_played >= 5)
+            .count()
+        )
+
     def get_user_rank_position(self, user_id: int) -> Optional[int]:
         """Get user's position on the leaderboard (1-indexed)."""
         user = self.get_by_id(user_id)
