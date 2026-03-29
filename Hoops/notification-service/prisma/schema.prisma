@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")  // ← Add this back!
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  
+  type      String   @db.VarChar(50)
+  title     String   @db.VarChar(255)
+  body      String   @db.Text
+  data      Json     @default("{}")
+  
+  read      Boolean  @default(false)
+  pushed    Boolean  @default(false)
+  pushSentAt DateTime? @map("push_sent_at") @db.Timestamptz(6)
+  
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([userId, read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model PushToken {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
+  
+  token      String   @unique @db.VarChar(500)
+  platform   String   @db.VarChar(20)
+  deviceName String?  @map("device_name") @db.VarChar(100)
+  
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastUsedAt DateTime @default(now()) @map("last_used_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("push_tokens")
+}
+
+model NotificationPreference {
+  userId    Int     @id @map("user_id")
+  
+  pushEnabled  Boolean @default(true) @map("push_enabled")
+  emailEnabled Boolean @default(false) @map("email_enabled")
+  
+  gameInvites    Boolean @default(true) @map("game_invites")
+  gameStarting   Boolean @default(true) @map("game_starting")
+  gameResults    Boolean @default(true) @map("game_results")
+  playerJoined   Boolean @default(true) @map("player_joined")
+  rankChanges    Boolean @default(true) @map("rank_changes")
+  nearbyGames    Boolean @default(true) @map("nearby_games")
+  
+  favoriteCourtIds Int[] @default([]) @map("favorite_court_ids")
+
+  @@map("notification_preferences")
+}

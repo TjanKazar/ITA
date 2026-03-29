@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -31,7 +31,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         hashed_password=hash_password(payload.password),
     )
     log.info("New user registered: id=%s username=%s", user.id, user.username)
-    return user
+    return UserPublicResponse.from_user(user)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -54,4 +54,4 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserPublicResponse)
 def me(current_user: User = Depends(get_current_user)):
     log.info("Profile fetched: id=%s", current_user.id)
-    return current_user
+    return UserPublicResponse.from_user(current_user)

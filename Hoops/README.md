@@ -85,22 +85,23 @@ Service pripravlja tudi leaderboarde:
 
 Upravlja uporabnike, avtentikacijo in zgodovino igralca.
 
-USER mode: 
-a
+
 ## User Model
 
-| Column            | Type           | Constraints                      | Default                |
-|-------------------|----------------|----------------------------------|------------------------|
-| `id`              | `Integer`      | Primary Key, Indexed             | Auto-generated         |
-| `username`        | `String(50)`   | Unique, Indexed, Not Null        | —                      |
-| `email`           | `String(255)`  | Unique, Indexed, Not Null        | —                      |
-| `hashed_password` | `String(255)`  | Not Null                         | —                      |
-| `in_game`         | `Boolean`      | —                                | `False`                |
-| `games_played`    | `Integer`      | —                                | `0`                    |
-| `wins`            | `Integer`      | —                                | `0`                    |
-| `losses`          | `Integer`      | —                                | `0`                    |
-| `is_active`       | `Boolean`      | —                                | `True`                 |
-| `created_at`      | `DateTime(tz)` | —                                | Current UTC timestamp  |
+| Column          | Type         | Constraints        | Default     |
+|-----------------|--------------|-------------------|-------------|
+| id              | Integer      | Primary Key       | Auto        |
+| username        | String(50)   | Unique, Not Null  | —           |
+| email           | String(255)  | Unique, Not Null  | —           |
+| hashed_password | String(255)  | Not Null          | —           |
+| is_active       | Boolean      | —                 | True        |
+| created_at      | DateTime     | —                 | UTC now     |
+| rating          | Integer      | —                 | 1000        |
+| rank_tier       | Integer      | —                 | 0 (Bronze)  |
+| games_played    | Integer      | —                 | 0           |
+| wins            | Integer      | —                 | 0           |
+| losses          | Integer      | —                 | 0           |
+| reputation      | Float        | —                 | 0.5         |
 
 ## Reputation
 

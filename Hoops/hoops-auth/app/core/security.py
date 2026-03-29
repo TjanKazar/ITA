@@ -10,8 +10,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
-    print(f"DEBUG: password type: {type(password)}, length: {len(password)}, bytes: {len(password.encode('utf-8'))}")
-    print(f"DEBUG: password repr: {repr(password)}")
     return pwd_context.hash(password)
 
 
