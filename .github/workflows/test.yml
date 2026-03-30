@@ -42,3 +42,24 @@ jobs:
 
       - name: Run tests
         run: go test ./internal/server/... -v
+
+  test-notification-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Hoops/notification-service
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test -- --coverage
+
