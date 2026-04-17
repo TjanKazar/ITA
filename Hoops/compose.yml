@@ -1,4 +1,79 @@
+version: '3.8'
+
 services:
+  # ===================
+  # API GATEWAY
+  # ===================
+  kong-db:
+    image: postgres:16-alpine
+    container_name: kong-db
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kongpass
+      POSTGRES_DB: kong
+    volumes:
+      - kong_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kong"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - hoops-network
+
+  kong-bootstrap:
+    image: kong:3.5
+    container_name: kong-bootstrap
+    command: kong migrations bootstrap
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kongpass
+      KONG_PG_DATABASE: kong
+    depends_on:
+      kong-db:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - hoops-network
+
+  kong:
+    image: kong:3.5
+    container_name: kong-gateway
+    depends_on:
+      kong-db:
+        condition: service_healthy
+      kong-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kongpass
+      KONG_PG_DATABASE: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8004
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+    ports:
+      - "8000:8000"   # Gateway proxy (your mobile app connects here)
+      - "8001:8001"   # Admin API
+      - "8443:8443"   # SSL proxy
+      - "8444:8444"   # SSL admin API
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - hoops-network
+
   # ===================
   # DATABASES
   # ===================
@@ -18,6 +93,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - hoops-network
 
   notification-db:
     image: postgres:16-alpine
@@ -35,10 +113,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - hoops-network
 
-  # ===================
   # MESSAGE BROKER
-  # ===================
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: hoops-rabbitmq
@@ -55,6 +135,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - hoops-network
 
   # ===================
   # SERVICES
@@ -74,6 +157,9 @@ services:
     depends_on:
       court-db:
         condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - hoops-network
 
   hoops-auth:
     build:
@@ -81,7 +167,7 @@ services:
       dockerfile: app/Dockerfile
     container_name: hoops-auth
     ports:
-      - "8000:8000"
+      - "8002:8000"  # Changed to 8002 to avoid conflict with Kong
     environment:
       - SECRET_KEY=${SECRET_KEY:-dev-secret-change-me}
       - ALGORITHM=HS256
@@ -95,6 +181,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - hoops-network
 
   notification-service:
     build: ./notification-service
@@ -116,13 +204,21 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8003/health"]
       interval: 30s
-      timeout: 5s
-      retries: 3
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - hoops-network
 
 volumes:
+  kong_pgdata:
   court_pgdata:
   auth-db:
   notification_pgdata:
   rabbitmq_data:
+
+networks:
+  hoops-network:
+    driver: bridge
