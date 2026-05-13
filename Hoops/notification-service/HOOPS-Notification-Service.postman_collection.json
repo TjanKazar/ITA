@@ -1,0 +1,57 @@
+{
+  "info": {
+    "name": "HOOPS Notification Service - Simple",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8003"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/health"
+      }
+    },
+    {
+      "name": "Generate Token",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"userId\": 1}"
+        },
+        "url": "{{base_url}}/test/generate-token"
+      }
+    },
+    {
+      "name": "Create Test Notification",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"user_id\": 1, \"type\": \"system\", \"title\": \"Test\", \"body\": \"Test notification\"}"
+        },
+        "url": "{{base_url}}/test/create-notification"
+      }
+    },
+    {
+      "name": "Get Notifications",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/notifications"
+      }
+    }
+  ]
+}
