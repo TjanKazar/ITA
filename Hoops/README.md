@@ -11,7 +11,8 @@ Uporabniki so večinsko lokalni igralci, ki igrajo na določenem igrišču, bodi
 
 - ustvarjanje courtov (igrišč)
 - ustvarjanje iger na teh igriščih
-- beleženje rezultatov
+- beleženje rezultatov (potencialno dosegljivo z computer vision, kjer od vsakega igralca telefonska kamera gleda en obroč
+      - beleženje rezultatov bi delovalo v vseh "game modih", beleženje osebne statistike na ta način samo v 1v1).
 - vpogled v leaderboard
 - pridobivanje ranka (bronze, silver, gold, diamond ...)
 
@@ -19,16 +20,39 @@ Uporabniki so večinsko lokalni igralci, ki igrajo na določenem igrišču, bodi
 
 Sistem je sestavljen iz 5 glavnih komponent.
 
-### 1. Court service
+### 1. Court service (implemented)
 
-Hrani informacije o igriščih:
+## Court Model
 
-- lokacija
-- status igrišča (empty, waiting for players, packed)
-- število košev na igrišču
-- tip igrišča (telovadnica, zunanje igrišče)
+| Column      | Type        | Constraints        | Default               |
+|-------------|-------------|--------------------|-----------------------|
+| `id`        | `int32`     | Primary Key        | Auto-generated        |
+| `name`      | `string`    | —                  | —                     |
+| `city`      | `string`    | —                  | —                     |
+| `address`   | `string`    | —                  | —                     |
+| `latitude`  | `float32`   | —                  | —                     |
+| `longitude` | `float32`   | —                  | —                     |
+| `hoop_count`| `int32`     | —                  | —                     |
+| `court_type`| `int32`     | —                  | —                     |
+| `status`    | `int32`     | —                  | `0`                   |
+| `created_at`| `timestamp` | —                  | Current timestamp     |
 
-Omogoča tudi vpogled v aktivna igrišča.
+
+### Court Type Values
+
+| Value | Description |
+|-------|-------------|
+| `0`   | Outdoor     |
+| `1`   | Indoor      |
+| `2`   | Mixed       |
+
+### Status Values
+
+| Value | Description |
+|-------|-------------|
+| `0`   | Pending     |
+| `1`   | Active      |
+| `2`   | Closed      |
 
 ### 2. Session service
 
@@ -57,23 +81,27 @@ Service pripravlja tudi leaderboarde:
 - leaderboard za neko mesto
 - lokalne leaderboarde za posamezni court
 
-### 4. User service
+### 4. User service (implemented)
 
 Upravlja uporabnike, avtentikacijo in zgodovino igralca.
 
-Primer podatkov:
 
-- Id
-- Uporabniško ime
-- email
-- Rank
-- In_game
-- št. odigranih iger
-- št. zmag
-- št. porazov
-- reputation (honor system)
-- home court
-- favourite courts []
+## User Model
+
+| Column          | Type         | Constraints        | Default     |
+|-----------------|--------------|-------------------|-------------|
+| id              | Integer      | Primary Key       | Auto        |
+| username        | String(50)   | Unique, Not Null  | —           |
+| email           | String(255)  | Unique, Not Null  | —           |
+| hashed_password | String(255)  | Not Null          | —           |
+| is_active       | Boolean      | —                 | True        |
+| created_at      | DateTime     | —                 | UTC now     |
+| rating          | Integer      | —                 | 1000        |
+| rank_tier       | Integer      | —                 | 0 (Bronze)  |
+| games_played    | Integer      | —                 | 0           |
+| wins            | Integer      | —                 | 0           |
+| losses          | Integer      | —                 | 0           |
+| reputation      | Float        | —                 | 0.5         |
 
 ## Reputation
 

@@ -2,16 +2,16 @@ name: Run Tests
 
 on:
   push:
+    branches:
+      - '**'
   pull_request:
 
 jobs:
-  test:
+  test-user-service:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: Hoops/user-service
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,3 +26,41 @@ jobs:
 
       - name: Run tests
         run: pytest tests/ -v
+        
+
+  test-court-service:
+    runs-on: ubuntu-latest 
+    defaults:
+      run:
+        working-directory: Hoops/court-service
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Run tests
+        run: go test ./internal/server/... -v
+
+  test-notification-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Hoops/notification-service
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test -- --coverage
