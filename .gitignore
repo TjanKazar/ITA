@@ -188,3 +188,27 @@ logs/
 # FastAPI/Streamlit/Gradio cache
 .gradio/
 .streamlit/
+
+# Python virtual environments (add to all levels)
+*/venv/
+**/venv/
+venv/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+
+# Local databases
+*.db
+*.sqlite3
+*.sqlite
+
+# Environment files (NEVER COMMIT SECRETS!)
+.env
+.env.local
+.env.*.local
+
+# IDE and OS temporary files
+*.pyc
+*.pyo
+*.pyd
