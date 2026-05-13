@@ -43,7 +43,7 @@ Primer:
 - pri 10 igralcih mora biti vsaj 7 prijavljenih v aplikaciji
 - ostali 3 se lahko vnesejo ročno
 
-### 3. Ranking service
+### 3. Ranking service d
 
 Uporabniku se izračuna pridobljen oziroma izgubljen rating glede na več faktorjev:
 
